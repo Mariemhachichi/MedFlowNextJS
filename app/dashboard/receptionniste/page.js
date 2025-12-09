@@ -3,14 +3,19 @@ import { useState } from 'react'
 import PatientsPage from './PatientsPage'
 import AppointmentsPage from './AppointmentsPage'
 import InvoicesPage from './InvoicesPage'
+import CalendarPage from './AppointmentsCalendarPage'
+import DashboardPage from './DashboardPage'
+
 
 export default function ReceptionnisteDashboard() {
   const [activeTab, setActiveTab] = useState('patients')
 
   const tabs = [
+     { id: 'dashboard', label: 'Dashboard' },
     { id: 'patients', label: 'Patients' },
     { id: 'appointments', label: 'Rendez-vous' },
-    { id: 'invoices', label: 'Factures' },
+    { id: 'calendar', label: 'calendar' },
+     { id: 'invoices', label: 'Factures' },
   ]
 
   return (
@@ -35,8 +40,10 @@ export default function ReceptionnisteDashboard() {
 
       {/* Content */}
       <main className="flex-1 p-6 overflow-auto">
+         {activeTab === 'dashboard' && <DashboardPage />}
         {activeTab === 'patients' && <PatientsPage />}
         {activeTab === 'appointments' && <AppointmentsPage />}
+        {activeTab === 'calendar' && <CalendarPage />} 
         {activeTab === 'invoices' && <InvoicesPage />}
       </main>
     </div>
