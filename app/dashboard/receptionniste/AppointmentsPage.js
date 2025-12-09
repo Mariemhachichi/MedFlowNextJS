@@ -18,13 +18,13 @@ export default function AppointmentsPage() {
   });
   const [search, setSearch] = useState("");
 
-  // Charger les données
+  // Charger les données - CORRECTION DES CHEMINS
   const fetchData = async () => {
     try {
       const [aRes, pRes, dRes] = await Promise.all([
-        fetch("/API/appointments"),
-        fetch("/API/patients"),
-        fetch("/API/doctors"),
+        fetch("/API/appointments"),      // CHANGÉ: minuscule "api"
+        fetch("/API/patients"),          // CHANGÉ: minuscule "api"
+        fetch("/API/doctors"),           // CHANGÉ: minuscule "api"
       ]);
       if (!aRes.ok || !pRes.ok || !dRes.ok) throw new Error("Erreur API");
 
@@ -53,7 +53,7 @@ export default function AppointmentsPage() {
 
     try {
       const method = form.id ? "PUT" : "POST";
-      const res = await fetch("/API/appointments", {
+      const res = await fetch("/api/appointments", { // CHANGÉ: minuscule "api"
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -71,8 +71,8 @@ export default function AppointmentsPage() {
     setForm({
       id: appt.id,
       date: new Date(appt.date).toISOString().slice(0,16),
-      patientId: appt.patient.id,
-      doctorId: appt.doctor.id,
+      patientId: appt.patientId || appt.patient?.id,
+      doctorId: appt.doctorId || appt.doctor?.id,
       reason: appt.reason || "",
       status: appt.status || "En attente"
     });
@@ -81,7 +81,7 @@ export default function AppointmentsPage() {
   const handleDelete = async (id) => {
     if (!confirm("Supprimer ce rendez-vous ?")) return;
     try {
-      const res = await fetch("/API/appointments", {
+      const res = await fetch("/api/appointments", { // CHANGÉ: minuscule "api"
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
@@ -95,9 +95,9 @@ export default function AppointmentsPage() {
 
   // Filtrer les rendez-vous
   const filteredAppointments = appointments.filter(appt =>
-    appt.patient.name.toLowerCase().includes(search.toLowerCase()) ||
-    appt.doctor.name.toLowerCase().includes(search.toLowerCase()) ||
-    appt.status.toLowerCase().includes(search.toLowerCase())
+    (appt.patient?.name || "").toLowerCase().includes(search.toLowerCase()) ||
+    (appt.doctor?.name || "").toLowerCase().includes(search.toLowerCase()) ||
+    (appt.status || "").toLowerCase().includes(search.toLowerCase())
   );
 
   // Export PDF d'un rendez-vous
@@ -109,8 +109,8 @@ export default function AppointmentsPage() {
     doc.setFontSize(12);
     doc.text(`Rendez-vous #: ${appt.id}`, 14, 35);
     doc.text(`Date: ${new Date(appt.date).toLocaleString()}`, 14, 42);
-    doc.text(`Patient: ${appt.patient?.name}`, 14, 49);
-    doc.text(`Médecin: ${appt.doctor?.name}`, 14, 56);
+    doc.text(`Patient: ${appt.patient?.name || "N/A"}`, 14, 49);
+    doc.text(`Médecin: ${appt.doctor?.name || "N/A"}`, 14, 56);
     doc.text(`Statut: ${appt.status}`, 14, 63);
 
     const tableColumn = ["Motif"];
@@ -199,9 +199,9 @@ export default function AppointmentsPage() {
             {filteredAppointments.map(appt => (
               <tr key={appt.id}>
                 <td className="border px-2 py-1">{new Date(appt.date).toLocaleString()}</td>
-                <td className="border px-2 py-1">{appt.patient.name}</td>
-                <td className="border px-2 py-1">{appt.doctor.name}</td>
-                <td className="border px-2 py-1">{appt.reason}</td>
+                <td className="border px-2 py-1">{appt.patient?.name || "N/A"}</td>
+                <td className="border px-2 py-1">{appt.doctor?.name || "N/A"}</td>
+                <td className="border px-2 py-1">{appt.reason || "N/A"}</td>
                 <td className={`border px-2 py-1 ${
                   appt.status === "Confirmé" ? "text-green-600" :
                   appt.status === "Annulé" ? "text-red-600" :

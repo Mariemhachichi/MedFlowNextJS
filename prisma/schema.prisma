@@ -48,3 +48,24 @@ model Invoice {
   status    String   @default("Non payée")
   createdAt DateTime @default(now())
 }
+
+
+model Clinic {
+  id        Int      @id @default(autoincrement())
+  name      String
+  address   String?
+  createdAt DateTime @default(now())
+  users     User[]   @relation("ClinicUsers")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      String
+  tenantId  Int?
+  clinic    Clinic?  @relation(fields: [tenantId], references: [id], name: "ClinicUsers")
+  createdAt DateTime @default(now())
+}
+
