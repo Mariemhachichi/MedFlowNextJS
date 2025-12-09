@@ -1,0 +1,50 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Patient {
+  id           Int           @id @default(autoincrement())
+  name         String
+  phone        String?
+  dob          DateTime?
+  appointments Appointment[] // Relation inverse
+  invoices     Invoice[] // Relation inverse
+  createdAt    DateTime      @default(now())
+}
+
+model Doctor {
+  id           Int           @id @default(autoincrement())
+  name         String
+  specialty    String?
+  appointments Appointment[] // Relation inverse
+  invoices     Invoice[] // Relation inverse
+  createdAt    DateTime      @default(now())
+}
+
+model Appointment {
+  id        Int      @id @default(autoincrement())
+  date      DateTime
+  reason    String?
+  patient   Patient  @relation(fields: [patientId], references: [id])
+  patientId Int
+  doctor    Doctor   @relation(fields: [doctorId], references: [id])
+  doctorId  Int
+  status    String   @default("En attente")
+  createdAt DateTime @default(now())
+}
+
+model Invoice {
+  id        Int      @id @default(autoincrement())
+  patient   Patient  @relation(fields: [patientId], references: [id])
+  patientId Int
+  doctor    Doctor   @relation(fields: [doctorId], references: [id])
+  doctorId  Int
+  amount    Float
+  status    String   @default("Non payée")
+  createdAt DateTime @default(now())
+}
